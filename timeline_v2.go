@@ -175,6 +175,76 @@ func (timeline *timelineV2) parseTweets() ([]*Tweet, string) {
 	return tweets, cursor
 }
 
+
+// timeline v2 JSON object
+type TimelineV2 struct {
+	Data struct {
+		User struct {
+			Result struct {
+				TimelineV2 struct {
+					Timeline struct {
+						Instructions []struct {
+							ModuleItems []item  `json:"moduleItems"`
+							Entries     []entry `json:"entries"`
+							Entry       entry   `json:"entry"`
+							Type        string  `json:"type"`
+						} `json:"instructions"`
+					} `json:"timeline"`
+				} `json:"timeline_v2"`
+
+				Timeline struct {
+					Timeline struct {
+						Instructions []struct {
+							Entries []entry `json:"entries"`
+							Entry   entry   `json:"entry"`
+							Type    string  `json:"type"`
+						} `json:"instructions"`
+					} `json:"timeline"`
+				} `json:"timeline"`
+			} `json:"result"`
+		} `json:"user"`
+	} `json:"data"`
+}
+
+
+func (timeline *TimelineV2) ParseTweets() ([]*Tweet, string) {
+	var cursor string
+	var tweets []*Tweet
+	for _, instruction := range timeline.Data.User.Result.TimelineV2.Timeline.Instructions {
+		for _, entry := range instruction.Entries {
+			if entry.Content.CursorType == "Bottom" {
+				cursor = entry.Content.Value
+				continue
+			}
+			if entry.Content.ItemContent.TweetResults.Result.Typename == "Tweet" || entry.Content.ItemContent.TweetResults.Result.Typename == "TweetWithVisibilityResults" {
+				if tweet := entry.Content.ItemContent.TweetResults.Result.parse(); tweet != nil {
+					tweets = append(tweets, tweet)
+				}
+			}
+			if len(entry.Content.Items) > 0 {
+				for _, item := range entry.Content.Items {
+					if tweet := item.Item.ItemContent.TweetResults.Result.parse(); tweet != nil {
+						tweets = append(tweets, tweet)
+					}
+				}
+			}
+		}
+		if len(instruction.ModuleItems) > 0 {
+			for _, entry := range instruction.ModuleItems {
+				if entry.Item.ItemContent.TweetResults.Result.Typename == "Tweet" || entry.Item.ItemContent.TweetResults.Result.Typename == "TweetWithVisibilityResults" {
+					if tweet := entry.Item.ItemContent.TweetResults.Result.parse(); tweet != nil {
+						tweets = append(tweets, tweet)
+					}
+				}
+			}
+		}
+	}
+	return tweets, cursor
+}
+
+
+
+
 type bookmarksTimelineV2 struct {
 	Data struct {
 		Bookmarks struct {
