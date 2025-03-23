@@ -308,6 +308,26 @@ func (timeline *retweetersTimelineV2) parseUsers() ([]*Profile, string) {
 	return users, cursor
 }
 
+
+func (timeline *timelineV2) ParseUsers() ([]*Profile, string) {
+	var cursor string
+	var users []*Profile
+	for _, instruction := range timeline.Data.User.Result.Timeline.Timeline.Instructions {
+		for _, entry := range instruction.Entries {
+			if entry.Content.CursorType == "Bottom" {
+				cursor = entry.Content.Value
+				continue
+			}
+			if entry.Content.ItemContent.UserResults.Result.Typename == "User" {
+				user := entry.Content.ItemContent.UserResults.Result.parse()
+				users = append(users, &user)
+			}
+		}
+	}
+	return users, cursor
+}
+
+
 func (timeline *timelineV2) parseUsers() ([]*Profile, string) {
 	var cursor string
 	var users []*Profile
