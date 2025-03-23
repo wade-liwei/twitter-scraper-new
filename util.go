@@ -401,6 +401,7 @@ func parseProfileV2(user userResult) Profile {
 		Sensitive:      u.PossiblySensitive,
 		Following:      u.Following,
 		FollowedBy:     u.FollowedBy,
+		IsBlueVerified: user.IsBlueVerified,
 	}
 
 	tm, err := time.Parse(time.RubyDate, u.CreatedAt)

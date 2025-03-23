@@ -37,6 +37,7 @@ type Profile struct {
 	Sensitive      bool
 	Following      bool
 	FollowedBy     bool
+	IsBlueVerified bool
 }
 
 type user struct {
