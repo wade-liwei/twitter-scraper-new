@@ -309,7 +309,7 @@ func (timeline *retweetersTimelineV2) parseUsers() ([]*Profile, string) {
 }
 
 
-func (timeline *timelineV2) ParseUsers() ([]*Profile, string) {
+func (timeline *TimelineV2) ParseUsers() ([]*Profile, string) {
 	var cursor string
 	var users []*Profile
 	for _, instruction := range timeline.Data.User.Result.Timeline.Timeline.Instructions {
