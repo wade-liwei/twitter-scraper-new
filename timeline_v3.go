@@ -61,3 +61,23 @@ func (timeline *TimelineV3) ParseTweets() ([]*Tweet, string) {
 	}
 	return tweets, cursor
 }
+
+
+
+func (timeline *TimelineV3) ParseUsers() ([]*Profile, string) {
+	var cursor string
+	var users []*Profile
+	for _, instruction := range timeline.Data.User.Result.Timeline.Timeline.Instructions {
+		for _, entry := range instruction.Entries {
+			if entry.Content.CursorType == "Bottom" {
+				cursor = entry.Content.Value
+				continue
+			}
+			if entry.Content.ItemContent.UserResults.Result.Typename == "User" {
+				user := entry.Content.ItemContent.UserResults.Result.parse()
+				users = append(users, &user)
+			}
+		}
+	}
+	return users, cursor
+}
